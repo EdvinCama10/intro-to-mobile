@@ -1,6 +1,6 @@
 <?php
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
+use \Psr\Http\Message\ServerRequestInterface as Request;
 use Selective\BasePath\BasePathMiddleware;
 use Slim\Factory\AppFactory;
 use Slim\Exception\NotFoundException;
@@ -8,8 +8,10 @@ use Slim\Exception\NotFoundException;
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../includes/DbOperations.php';
 
+
+
 $app = AppFactory::create();
-$app->setBasePath('/api');
+$app->setBasePath('/api/');
 $app->addBodyParsingMiddleware();
 $app->addRoutingMiddleware();
 $errorMiddleware = $app->addErrorMiddleware(true, true, true);
@@ -78,6 +80,23 @@ $app->post('/createuser', function(Request $request, Response $response){
 						->withStatus(422);
 		 }
 	 }
+});
+
+$app->get('/allusers', function(Request $request, Response $response){
+	$email = $db = new DbOperations;
+
+	$users = $db->getAllUsers($email);
+
+	$response_data = array();
+
+	$response_data['error'] = false;
+	$response_data['users'] = $users;
+
+	$response->getBody()->write(json_encode($response_data));
+
+	return $response
+	->withHeader('Content-type', 'application/json')
+	->withStatus(200);
 });
 
 function haveEmptyParameters($reqired_params, $response){

@@ -12,10 +12,10 @@
             $this->connection = $db->connect();
         }
 
-        public function createUser($username, $email, $firstName, $lastName, $phoneNumber, $address, $password, $rePassword){
+        public function createUser($username, $email, $firstName, $lastName, $phoneNumber, $address, $password){
             if(!$this->emailExist($email)){
-                $stmt = $this->connection->prepare("INSERT INTO user (Username, Email, FirstName, LastName, PhoneNumber, address, password, rePassword) VALUES (????????)");
-                $stmt->bind_param("ssssssss", $username, $email, $firstName, $lastName, $phoneNumber, $address, $password, $rePassword);
+                $stmt = $this->connection->prepare("INSERT INTO user (Username, Email, FirstName, LastName, PhoneNumber, address, password) VALUES (???????)");
+                $stmt->bind_param("ssssssss", $username, $email, $firstName, $lastName, $phoneNumber, $address, $password);
                 if($stmt->execute()){
                     return USER_CREATED;
                 }else{
@@ -63,6 +63,7 @@
                 $user['address'] = $address;
                 array_push($users, $user);
             }
+            return $users;
         }
 
         public function getUserByEmail($email){
@@ -73,13 +74,48 @@
             $stmt->fetch();
             $user = array();
             $user['id'] = $id;
-            $user['email'] = $email;
-            $user['username'] = $username;
+            $user['Email'] = $email;
+            $user['Username'] = $username;
             $user['firstName'] = $firstName;
             $user['lastName'] = $lastName;
             $user['phoneNumber'] = $PhoneNumber;
             $user['address'] = $address;
             return $user;
+        }
+
+        public function updateUser($username, $email, $firstName, $lastName, $phoneNumber, $address, $id){
+            $stmt = $this->connection->prepare("UPDATE user SET username = ?, email = ?, firstName = ?, lastName = ?, phoneNumber = ?, address = ?, id = ?");
+            $stmt -> bind_param("ssssssi", $username, $email, $firstName, $lastName, $phoneNumber, $address, $id);
+
+            if($stmt->execute())
+                return true;
+            return false;
+        }
+
+        public function updatePassword($currentPassword, $newPassword, $email){
+            $hashed_password = $this->getUserPasswordByEmail($email);
+
+            if(password_verify($currentPassword, $hashed_password)){
+
+                $hash_password = password_hash($newPassword, PASSWORD_DEFAULT);
+                $stmt = $this->connection->prepare("UPDATE user SET password = ? WHERE email = ?");
+                $stmt->bind_param("ss", $hash_password, $email);
+
+                if($stmt->execute())
+                    return PASSWORD_CHANGED;
+                return PASSWORD_NOT_CHANGED;
+            }else{
+                return PASSWORD_DO_NOT_MATCH;
+            }
+        }
+
+        public function deleteUser($id){
+            $stmt = $this->connection->prepare("DELETE FROM user WHERE id = ?");
+            $stmt->bind_param("i", $id);
+
+            if($stmt->execute())
+                return true;
+            return false;
         }
 
         private function emailExist($email){
