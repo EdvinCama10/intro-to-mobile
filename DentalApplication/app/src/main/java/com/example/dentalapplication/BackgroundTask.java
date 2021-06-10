@@ -27,7 +27,7 @@ public class BackgroundTask extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... params) {
 
 
-        String registerUrl = "https://dentalappibu.000webhostapp.com/register.php";       //Todo: add the new script to the server and add the new link here !
+        String registerUrl = "https://dentalappibu.000webhostapp.com/register.php";       //Todo: before final submission change database info !
         String method = params[0];
         if (method.equals("register")) {
 
