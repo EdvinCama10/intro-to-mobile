@@ -73,8 +73,8 @@ public class RegistrationActivity extends AppCompatActivity {
 
 
         String method = "register";
-        BackgroundTask backgroundTask = new BackgroundTask(this);
-        backgroundTask.execute(method, userName, email, firstName, lastName, phoneNumber, address, password, rePassword);
+        BackgroundTaskRegistration backgroundTaskRegistration = new BackgroundTaskRegistration(this);
+        backgroundTaskRegistration.execute(method, userName, email, firstName, lastName, phoneNumber, address, password, rePassword);
         finish();
 
     }

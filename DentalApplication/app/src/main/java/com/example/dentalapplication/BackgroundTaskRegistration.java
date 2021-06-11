@@ -15,11 +15,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-public class BackgroundTask extends AsyncTask<String, Void, String> {
+public class BackgroundTaskRegistration extends AsyncTask<String, Void, String> {
 
     Context ctx;
 
-    public BackgroundTask(Context ctx) {
+    public BackgroundTaskRegistration(Context ctx) {
         this.ctx = ctx;
     }
 
