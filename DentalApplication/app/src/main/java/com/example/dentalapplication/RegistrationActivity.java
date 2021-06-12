@@ -36,6 +36,7 @@ public class RegistrationActivity extends AppCompatActivity {
         enteredPassword = findViewById(R.id.enteredPassword);
         enteredRePassword = findViewById(R.id.enteredRePassword);
         register = findViewById(R.id.register);
+        setTitle("Registration");
 
 
         register.setOnClickListener(new View.OnClickListener() {

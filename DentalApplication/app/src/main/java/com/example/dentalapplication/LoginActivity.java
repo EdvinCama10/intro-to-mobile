@@ -56,11 +56,10 @@ public class LoginActivity extends AppCompatActivity {
         password = findViewById(R.id.password);
         login = findViewById(R.id.login);
         registration = findViewById(R.id.registration);
-
         GetData getData = new GetData();
         getData.execute();
         map = new HashMap<>();
-
+        setTitle("Login");
         String intentEmail = getIntent().getStringExtra("email");
         String intentPassword = getIntent().getStringExtra("password");
         map.put(intentEmail,intentPassword);
@@ -96,9 +95,18 @@ public class LoginActivity extends AppCompatActivity {
               else {
 
                   if (map.containsKey(email.getText().toString().trim()) && map.get(email.getText().toString().trim()).equals(password.getText().toString().trim())){
-                      Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                      startActivity(intent);
-                      Toast.makeText(LoginActivity.this, "Welcome", Toast.LENGTH_SHORT).show();
+
+                      if (email.getText().toString().trim().equals("mahadib124@gmail.com") || email.getText().toString().trim().equals("edvincama00@gmail.com")){
+                          Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                          startActivity(intent);
+                          Toast.makeText(LoginActivity.this, "Welcome Admin", Toast.LENGTH_SHORT).show();
+                      }
+                      else{
+                          Intent intent = new Intent(LoginActivity.this, UserActivity.class);
+                          startActivity(intent);
+                          Toast.makeText(LoginActivity.this, "Welcome User", Toast.LENGTH_SHORT).show();
+                      }
+
                   }
                   else{
                       Toast.makeText(LoginActivity.this, "Wrong username or password", Toast.LENGTH_SHORT).show();

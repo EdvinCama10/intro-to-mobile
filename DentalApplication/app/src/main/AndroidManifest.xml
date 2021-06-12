@@ -11,10 +11,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DentalApplication">
-        <activity android:name=".MainActivity"
-            android:parentActivityName=".LoginActivity"/>
-        <activity android:name=".RegistrationActivity"
-            android:parentActivityName=".LoginActivity"/>
+        <activity android:name=".UserActivity"></activity>
+        <activity
+            android:name=".MainActivity"
+            android:parentActivityName=".LoginActivity" />
+        <activity
+            android:name=".RegistrationActivity"
+            android:parentActivityName=".LoginActivity" />
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
