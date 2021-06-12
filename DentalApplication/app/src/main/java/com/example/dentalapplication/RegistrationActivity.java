@@ -2,6 +2,7 @@ package com.example.dentalapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -48,6 +49,10 @@ public class RegistrationActivity extends AppCompatActivity {
                 } else {
                     if (checkIfPasswordsMatch()) {
                         registerUser();
+                        Intent intent = new Intent(RegistrationActivity.this, LoginActivity.class);
+                        intent.putExtra("email",enteredEmail.getText().toString().trim());
+                        intent.putExtra("password",enteredPassword.getText().toString().trim());
+                        startActivity(intent);
                     } else {
                         Toast.makeText(RegistrationActivity.this, "Passwords Don't match !", Toast.LENGTH_SHORT).show();
                     }

@@ -1,10 +1,13 @@
 package com.example.dentalapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.loader.content.AsyncTaskLoader;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,14 +15,24 @@ import android.widget.TextView;
 
 import android.os.AsyncTask;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.EventListener;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -27,22 +40,30 @@ public class LoginActivity extends AppCompatActivity {
     private EditText password;
     private Button login;
     private Button registration;
+    private String jsonEmail;
+    private String jsonPassword;
+    private String json_url = "https://dentalappibu.000webhostapp.com/getEmailAndPassword.php";
 
 
+    public HashMap<String, String> map;
 
-    private String jsonString;
-    private String jsonStringParse;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         email = findViewById(R.id.email);
         password = findViewById(R.id.password);
         login = findViewById(R.id.login);
         registration = findViewById(R.id.registration);
 
+        GetData getData = new GetData();
+        getData.execute();
+        map = new HashMap<>();
 
+        String intentEmail = getIntent().getStringExtra("email");
+        String intentPassword = getIntent().getStringExtra("password");
+        map.put(intentEmail,intentPassword);
 
         registration.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,83 +73,122 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-login.setOnClickListener(new View.OnClickListener() {
-    @Override
-    public void onClick(View view) {
-        getEmailAndPassword();
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+
+//                for (Map.Entry<String, String> entry : map.entrySet()) {
+//                    if(entry.getKey().equals(email.getText().toString().trim()) && entry.getValue().equals(password.getText().toString().trim())){
+//                        Toast.makeText(LoginActivity.this, "Welcome 1", Toast.LENGTH_SHORT).show();
+//                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//                        startActivity(intent);
+//                    }
+//                    else{
+//                        Toast.makeText(LoginActivity.this, "Wrong username or password", Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+
+              if(checkIfFieldsAreEmpty()){
+                  Toast.makeText(LoginActivity.this, "Please fill all the fields", Toast.LENGTH_SHORT).show();
+              }
+              else {
+
+                  if (map.containsKey(email.getText().toString().trim()) && map.get(email.getText().toString().trim()).equals(password.getText().toString().trim())){
+                      Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                      startActivity(intent);
+                      Toast.makeText(LoginActivity.this, "Welcome", Toast.LENGTH_SHORT).show();
+                  }
+                  else{
+                      Toast.makeText(LoginActivity.this, "Wrong username or password", Toast.LENGTH_SHORT).show();
+                  }
+              }
+
+
+            }
+        });
+
+
     }
-});
-    }
 
-    private void getEmailAndPassword(){
+    @SuppressLint("StaticFieldLeak")
+    public class GetData extends AsyncTask<String, String, String> {
 
-        new BackgroundTaskLogin().execute();
-
-    }
-
-    private void parseJson(){
-
-
-
-    }
-
-
-    class BackgroundTaskLogin extends AsyncTask<Void,Void,String> {
-
-
-        String json_url = "https://dentalappibu.000webhostapp.com/getEmailAndPassword.php";
 
         @Override
-        protected String doInBackground(Void... voids) {
+        protected String doInBackground(String... strings) {
+            String current = "";
 
             try {
-                URL url = new URL(json_url);
-                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                InputStream inputStream = httpURLConnection.getInputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                StringBuilder stringBuilder = new StringBuilder();
+                URL url;
+                HttpURLConnection urlConnection = null;
 
-                while ((jsonString = bufferedReader.readLine()) != null){
 
-                    stringBuilder.append(jsonString).append("\n");
+                try {
+                    url = new URL(json_url);
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    InputStream in = urlConnection.getInputStream();
+                    InputStreamReader isr = new InputStreamReader(in);
 
+                    int data = isr.read();
+                    while (data != -1) {
+
+                        current += (char) data;
+                        data = isr.read();
+
+                    }
+                    return current;
+
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (urlConnection != null) {
+                        urlConnection.disconnect();
+                    }
                 }
-                bufferedReader.close();
-                inputStream.close();
-                httpURLConnection.disconnect();
-                return stringBuilder.toString().trim();
 
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            return null;
+            return current;
+
         }
 
-        public BackgroundTaskLogin() {
-            super();
-        }
 
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
+        protected void onPostExecute(String s) {
+            try {
+                JSONObject jsonObject = new JSONObject(s);
+                JSONArray jsonArray = jsonObject.getJSONArray("server_response");
 
-        @Override
-        protected void onPostExecute(String result) {
-            TextView json = (TextView) findViewById(R.id.json);
-            json.setText(result);
-            jsonStringParse = result;
+                for (int i = 0; i < jsonArray.length(); i++) {
 
-        }
 
-        @Override
-        protected void onProgressUpdate(Void... values) {
-            super.onProgressUpdate(values);
+                    JSONObject jsonObject1 = jsonArray.getJSONObject(i);
+                    jsonEmail = jsonObject1.getString("Email");
+                    jsonPassword = jsonObject1.getString("password");
+                    map.put(jsonEmail, jsonPassword);
+
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
         }
     }
 
+    private boolean checkIfFieldsAreEmpty() {
+if (TextUtils.isEmpty(email.getText()) || TextUtils.isEmpty(password.getText())){
+    return true;
+}
+else{
+    return false;
+}
+    }
 
 
 }
